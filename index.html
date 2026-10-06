@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kişi QR — Rehbere kaydet</title>
+  <meta name="description" content="Şirket, ünvan, ad, telefon ve e-posta ile QR oluşturun. iPhone ve Android kamerası kodu kişi kartı olarak açar.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23143028'/%3E%3Cpath fill='%23e4b56a' d='M7 7h7v7H7zm11 0h7v7h-7zM7 18h7v7H7zm3-9h3v3h-3zm11 0h3v3h-3zM10 21h3v3h-3z'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,560;1,9..144,560&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <section class="editor">
+      <p class="eyebrow">Kişi QR</p>
+      <h1>Okutunca <em>rehbere</em> kaydolur.</h1>
+      <p class="lead">Şirket, ünvan, ad, telefon ve e-postayı yazın. iPhone veya Android kamerası kodu görünce kişi kartını açar. Karşıdaki kişi Kaydet’e basınca rehbere eklenir.</p>
+
+      <form id="card-form" autocomplete="on">
+        <label class="field">
+          <span>Şirket adı</span>
+          <input id="org" name="organization" autocomplete="organization" maxlength="80" placeholder="Kuzey Ajans">
+        </label>
+
+        <div class="name-row">
+          <label class="field">
+            <span>Ad</span>
+            <input id="first" name="given-name" autocomplete="given-name" maxlength="40" placeholder="Ayşe" required>
+          </label>
+          <label class="field">
+            <span>Soyad</span>
+            <input id="last" name="family-name" autocomplete="family-name" maxlength="40" placeholder="Demir">
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Ünvan</span>
+          <input id="title" name="organization-title" autocomplete="organization-title" maxlength="60" placeholder="Satış müdürü">
+        </label>
+
+        <label class="field">
+          <span>Telefon numarası</span>
+          <input id="phone" name="tel" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" placeholder="05xx xxx xx xx" spellcheck="false" required>
+          <small>0 ile başlayan numaralar kartta +90 olarak yer alır.</small>
+        </label>
+
+        <label class="field">
+          <span>E-posta</span>
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="80" placeholder="ayse@kuzeyajans.com" spellcheck="false">
+        </label>
+
+        <div class="field">
+          <span>Fotoğraf <em>isteğe bağlı</em></span>
+          <div class="photo-picker">
+            <label class="photo-add" id="photo-add" for="photo">Görsel seç</label>
+            <input id="photo" class="photo-input" type="file" accept="image/*">
+            <button type="button" id="photo-remove" hidden>Kaldır</button>
+          </div>
+          <small>İsteğe bağlı. Eklenirse rehber fotoğrafı olur. Görsel, kodun gözleri sıkışmasın diye küçültülür.</small>
+        </div>
+
+        <fieldset class="look">
+          <legend>Görünüm</legend>
+          <div class="color-row">
+            <label class="swatch">
+              <span>Kod rengi</span>
+              <input id="fg-color" type="color" value="#10241c" aria-label="Kod rengi">
+            </label>
+            <label class="swatch" id="bg-field">
+              <span>Arka plan</span>
+              <input id="bg-color" type="color" value="#ffffff" aria-label="Arka plan rengi">
+            </label>
+          </div>
+          <div class="look-row">
+            <button type="button" id="look-mono">Siyah-beyaz</button>
+            <button type="button" id="look-invert">Renkleri ters çevir</button>
+            <button type="button" id="look-clear" aria-pressed="false">Arka planı kaldır</button>
+          </div>
+          <div class="logo-box">
+            <span class="logo-label">Ortadaki logo <em>isteğe bağlı</em></span>
+            <div class="photo-picker">
+              <label class="photo-add" id="logo-add" for="logo">Logo seç</label>
+              <input id="logo" class="photo-input" type="file" accept="image/*">
+              <button type="button" id="logo-remove" hidden>Kaldır</button>
+            </div>
+            <label class="logo-size is-off" id="logo-size-field">
+              <span>Boyut</span>
+              <input id="logo-size" type="range" min="0" max="100" value="40" disabled>
+            </label>
+            <button type="button" class="logo-round" id="logo-round" aria-pressed="false" disabled>Yuvarlak logo</button>
+          </div>
+          <p class="look-note">Logo kodun tam ortasında durur. Boyutu, kodun okunmasını bozmayacak aralıkta kalır. Şeffaf dosyada arka plan boş kalır.</p>
+        </fieldset>
+
+        <p class="status" id="status" data-state="idle" role="status">Ad ve telefon yazılınca kod burada oluşur.</p>
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="download-png" disabled>QR’ı indir</button>
+          <div class="download-row">
+            <button type="button" class="btn btn-ghost" id="download-clear" disabled>Şeffaf indir</button>
+            <button type="button" class="btn btn-ghost" id="download-invert" disabled>Ters renk indir</button>
+          </div>
+          <div class="action-row">
+            <button type="button" class="btn btn-ghost" id="download-vcf" disabled>Kişi dosyası</button>
+            <button type="button" class="btn btn-ghost" id="print-card" disabled>Yazdır</button>
+            <button type="reset" class="btn btn-ghost" id="reset-form">Temizle</button>
+          </div>
+        </div>
+      </form>
+
+      <p class="trust">Bilgiler yalnızca bu sayfada kalır, bir sunucuya gönderilmez.</p>
+    </section>
+
+    <section class="stage">
+      <article class="pass" id="pass" aria-live="polite">
+        <p class="pass-kicker">Kişi kartı</p>
+        <div class="qr-slot">
+          <div class="qr-empty" id="qr-empty">
+            <p>Bilgiler tamamlanınca<br>kod burada belirir</p>
+          </div>
+          <canvas id="qr-canvas" hidden aria-label="Kişi kartı QR kodu"></canvas>
+        </div>
+        <div class="pass-copy">
+          <img id="pass-photo" class="pass-photo" alt="" hidden>
+          <h2 class="pass-name is-placeholder" id="pass-name">Ad Soyad</h2>
+          <p class="pass-title is-placeholder" id="pass-title">Ünvan</p>
+          <p class="pass-org is-placeholder" id="pass-org">Şirket</p>
+          <p class="pass-phone is-placeholder" id="pass-phone">Telefon</p>
+          <p class="pass-email is-placeholder" id="pass-email">E-posta</p>
+        </div>
+      </article>
+
+      <ol class="steps">
+        <li>Bilgileri yazın</li>
+        <li>Kodu gösterin ya da indirin</li>
+        <li>Telefon kamerasıyla okutun</li>
+        <li>Açılan ekranda Kaydet’e basın</li>
+      </ol>
+    </section>
+  </main>
+
+  <script src="vendor/qrcode.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
